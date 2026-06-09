@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="ru">
+  <script>
+if (!localStorage.getItem('access_granted') && !window.location.href.includes('bind.html')) {
+    window.location.href = '/bind.html';
+}
+</script>
 <head>
   <meta charset="UTF-8">
   <title>Kaspi.kz</title>
