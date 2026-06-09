@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Госуслуги</title>
+<style>
+:root { --primary-red: #f14635; --bg-gray: #f2f2f7; --text-main: #000000; --text-gray: #8e8e93; --white: #ffffff; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { background:#fff; }
+body::before{ content:""; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top); background: #ffffff; z-index: 2147483647; pointer-events: none; }
+body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", Roboto, Helvetica, Arial, sans-serif; background-color: var(--white); color: var(--text-main); padding-bottom: 75px; }
+.header-top { padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
+.header-title { font-size: 17px; font-weight: 600; flex-grow: 1; text-align: center; margin-right: 24px; user-select: none; -webkit-user-select: none; }
+.header-back{ width: 24px; height: 24px; display:flex; align-items:center; justify-content:center; background: transparent; border: 0; padding: 0; cursor: pointer; }
+.tabs-container { padding: 0 16px 10px; display: flex; }
+.tabs-bg { background: #eeeff4; border-radius: 9px; padding: 2px; display: flex; width: 100%; }
+.tab { flex: 1; text-align: center; padding: 6px 0; font-size: 13px; font-weight: 500; border-radius: 7px; color: var(--text-main); cursor: pointer; }
+.tab.active { background: var(--white); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+.search-container { padding: 0 16px 16px; }
+.search-box { background: #eeeff4; border-radius: 10px; padding: 8px 12px; display: flex; align-items: center; color: var(--text-gray); }
+.search-box svg { margin-right: 8px; opacity: 0.5; }
+.search-text { font-size: 16px; }
+.gos-docs-section { background: white; padding: 0 0 15px 0; border-bottom: 8px solid #f2f2f5; }
+.gos-docs-scroll { display: flex; overflow-x: auto; padding: 0 15px; gap: 10px; margin-bottom: 15px; scrollbar-width: none; }
+.gos-docs-scroll::-webkit-scrollbar { display: none; }
+.gos-doc-card { background: #f5f5f5; border-radius: 16px; padding: 15px; min-width: 135px; display: flex; flex-direction: column; gap: 12px; cursor: pointer; }
+.gos-doc-img { width: 66px; height: auto; object-fit: contain; }
+.gos-doc-title { font-size: 13px; font-weight: 500; color: #333; line-height: 1.3; }
+.gos-cats-section { background: white; padding: 15px 0; border-bottom: 1px solid #f0f0f0; }
+.gos-cats-scroll { display: flex; justify-content: space-between; padding: 0 15px; }
+.gos-cat-item { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 70px; position: relative; }
+.gos-cat-icon-bg { width: 58px; height: 58px; background: #f5f5f5; border-radius: 16px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.gos-cat-icon { width: 100%; height: 100%; object-fit: cover; }
+.gos-cat-title { font-size: 12px; color: #555; text-align: center; }
+.gos-cat-item.active .gos-cat-title { color: #ff2d17; font-weight: 600; }
+.gos-cat-item.active::after { content: ''; position: absolute; bottom: -15px; left: 10px; right: 10px; height: 2px; background: #ff2d17; }
+.gos-list-section { background: white; padding: 0 15px; }
+.gos-list-title { font-size: 16px; font-weight: 700; padding: 20px 0 10px 0; }
+.gos-list-item { display: flex; align-items: center; padding: 14px 0; border-bottom: 1px solid #f5f5f5; gap: 15px; cursor: pointer; }
+.gos-list-icon-wrapper { width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; overflow: hidden; }
+.gos-list-icon { width: 100%; height: 100%; object-fit: cover; }
+.gos-list-text { flex: 1; }
+.gos-list-item-title { font-size: 15px; font-weight: 500; color: #222; line-height: 1.2; }
+.gos-list-item-sub { font-size: 12px; color: #8e8e93; margin-top: 2px; }
+.gos-badge { background: #ff2d17; color: white; font-size: 10px; font-weight: 700; padding: 3px 6px; border-radius: 6px; margin-right: 5px; }
+.gos-arrow { color: #c7c7cc; font-size: 20px; }
+.nav-bar { position: fixed; bottom: 0; left: 0; width: 100%; height: 75px; background: #fff; border-top: 1px solid #e5e5e5; display: flex; z-index: 10; padding-bottom: env(safe-area-inset-bottom); }
+.nav-item { flex: 1; font-size: 10px; color: #8a8a8e; display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; }
+.nav-item.active { color: var(--primary-red); }
+.nav-icon { width: 24px; height: 24px; margin-bottom: 4px; position: relative; }
+.nav-icon img { width: 100%; height: 100%; object-fit: contain; }
+.badge { position: absolute; top: -4px; right: -4px; background: var(--primary-red); color: #fff; font-size: 10px; min-width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1.5px solid #fff; }
+.red-filter { filter: invert(38%) sepia(58%) saturate(4642%) hue-rotate(346deg) brightness(96%) contrast(92%); }
+.gray-filter { filter: invert(60%) sepia(0%) saturate(0%) brightness(95%) contrast(90%); }
+#loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 9999; display: none; background: white; flex-direction: column; }
+#progress-bar-container { width: 100%; height: 3px; background-color: #f0f0f0; }
+#progress-bar { width: 0%; height: 100%; background-color: #f14635; transition: width 1.5s linear; }
+#photo-screen { flex: 1; display: none; justify-content: center; align-items: center; background-color: white; }
+#loading-photo { width: 100%; max-width: 400px; object-fit: contain; }
+.skeleton-screen { position: fixed; inset: 0; background: #fff; z-index: 9998; overflow: hidden; padding-bottom: 75px; opacity: 1; transition: opacity .22s ease; }
+.skeleton-screen.is-hidden { opacity: 0; pointer-events: none; }
+.sk { position: relative; overflow: hidden; border-radius: 10px; background: #ECECF1; }
+.sk::after { content:""; position:absolute; top:0; left:-55%; height:100%; width:55%; background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.55) 50%, rgba(255,255,255,0) 100%); animation: sk-shimmer 1.2s ease-in-out infinite; transform: skewX(-15deg); }
+@keyframes sk-shimmer { 0% { left:-55%; } 100% { left:110%; } }
+.sk-row { display:flex; align-items:center; justify-content:space-between; padding: 12px 16px; }
+.sk-header .sk-icon { width:24px; height:24px; border-radius: 8px; }
+.sk-header .sk-title { width: 130px; height: 16px; border-radius: 8px; }
+.sk-pad { padding: 0 16px 16px; }
+.sk-tabs { height: 34px; border-radius: 10px; background:#EDEDF3; }
+.sk-search { height: 38px; border-radius: 10px; background:#EDEDF3; }
+.sk-hscroll { display:flex; gap:12px; padding: 0 16px 12px; }
+.sk-card { width: 120px; height: 94px; border-radius: 12px; }
+.sk-link { height: 16px; width: 130px; border-radius: 8px; }
+.sk-divider { height: 12px; background: #F2F2F7; }
+.sk-list { padding-left: 16px; }
+.sk-item { display:flex; align-items:center; padding: 14px 16px 14px 0; border-bottom: 0.5px solid #e5e5e5; gap: 16px; }
+.sk-li-icon { width:24px; height:24px; border-radius: 8px; flex: 0 0 auto; }
+.sk-li-text { flex:1; }
+.sk-li-title { height: 14px; width: 62%; border-radius: 8px; margin-bottom: 8px; }
+.sk-li-sub { height: 10px; width: 78%; border-radius: 8px; opacity: .9; }
+.sk-li-arrow { width:14px; height:14px; border-radius: 6px; flex: 0 0 auto; opacity: .7; }
+.sk-bottom-gap { height: 75px; }
+</style>
+</head>
+<body>
+
+<div id="skeleton" class="skeleton-screen" aria-hidden="true">
+  <div class="sk-row sk-header"><div class="sk sk-icon"></div><div class="sk sk-title"></div><div class="sk sk-icon" style="opacity:0"></div></div>
+  <div class="sk-pad"><div class="sk sk-tabs"></div></div>
+  <div class="sk-pad"><div class="sk sk-search"></div></div>
+  <div class="sk-hscroll"><div class="sk sk-card"></div><div class="sk sk-card"></div><div class="sk sk-card"></div></div>
+  <div class="sk-pad"><div class="sk sk-link"></div></div>
+  <div class="sk-divider"></div>
+  <div class="sk-list">
+    <div class="sk-item"><div class="sk sk-li-icon"></div><div class="sk-li-text"><div class="sk sk-li-title"></div><div class="sk sk-li-sub"></div></div><div class="sk sk-li-arrow"></div></div>
+    <div class="sk-item"><div class="sk sk-li-icon"></div><div class="sk-li-text"><div class="sk sk-li-title"></div><div class="sk sk-li-sub"></div></div><div class="sk sk-li-arrow"></div></div>
+    <div class="sk-item"><div class="sk sk-li-icon"></div><div class="sk-li-text"><div class="sk sk-li-title"></div><div class="sk sk-li-sub"></div></div><div class="sk sk-li-arrow"></div></div>
+    <div class="sk-item"><div class="sk sk-li-icon"></div><div class="sk-li-text"><div class="sk sk-li-title" style="width:48%"></div></div><div class="sk sk-li-arrow"></div></div>
+    <div class="sk-item"><div class="sk sk-li-icon"></div><div class="sk-li-text"><div class="sk sk-li-title"></div><div class="sk sk-li-sub"></div></div><div class="sk sk-li-arrow"></div></div>
+    <div class="sk-item"><div class="sk sk-li-icon"></div><div class="sk-li-text"><div class="sk sk-li-title"></div><div class="sk sk-li-sub"></div></div><div class="sk sk-li-arrow"></div></div>
+  </div>
+  <div class="sk-bottom-gap"></div>
+</div>
+
+<div id="loading-overlay">
+  <div id="progress-bar-container"><div id="progress-bar"></div></div>
+  <div id="photo-screen"><img src="loading.png" alt="" id="loading-photo"></div>
+</div>
+
+<div class="header-top">
+  <button class="header-back" type="button" onclick="location.href='index.html'">
+    <span style="font-size:24px;color:var(--primary-red);">‹</span>
+  </button>
+  <div class="header-title">Госуслуги</div>
+  <div style="width: 24px;"></div>
+</div>
+
+<div class="tabs-container">
+  <div class="tabs-bg"><div class="tab active">Все услуги</div><div class="tab">Мои заявки</div></div>
+</div>
+
+<div class="search-container">
+  <div class="search-box">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    <span class="search-text">Поиск по Госуслугам</span>
+  </div>
+</div>
+
+<div class="gos-docs-section">
+    <div class="gos-docs-scroll">
+        <div class="gos-doc-card" id="id-card-link"><img src="udost.png" class="gos-doc-img"><div class="gos-doc-title">Удостоверение личности</div></div>
+        <div class="gos-doc-card"><img src="passport-icon.png" class="gos-doc-img"><div class="gos-doc-title">Паспорт гражданина РК</div></div>
+        <div class="gos-doc-card"><img src="student-icon.png" class="gos-doc-img"><div class="gos-doc-title">Студенческий билет</div></div>
+    </div>
+</div>
+
+<div class="gos-cats-section">
+    <div class="gos-cats-scroll">
+        <div class="gos-cat-item active"><div class="gos-cat-icon-bg"><img src="popular.png" class="gos-cat-icon"></div><div class="gos-cat-title">Популярные</div></div>
+        <div class="gos-cat-item"><div class="gos-cat-icon-bg"><img src="spravki.png" class="gos-cat-icon"></div><div class="gos-cat-title">Справки</div></div>
+        <div class="gos-cat-item"><div class="gos-cat-icon-bg"><img src="avto.png" class="gos-cat-icon"></div><div class="gos-cat-title">Авто</div></div>
+        <div class="gos-cat-item"><div class="gos-cat-icon-bg"><img src="house.png" class="gos-cat-icon"></div><div class="gos-cat-title">Жилье</div></div>
+    </div>
+</div>
+
+<div class="gos-list-section">
+    <div class="gos-list-title">Популярные и новые</div>
+    <div class="gos-list-item"><div class="gos-list-icon-wrapper"><img src="samozanyat.png" class="gos-list-icon"></div><div class="gos-list-text"><div class="gos-list-item-title">Стать самозанятым</div><div class="gos-list-item-sub">Открыть счет и начать принимать оплату</div></div><div class="gos-badge">NEW</div><div class="gos-arrow">›</div></div>
+    <div class="gos-list-item"><div class="gos-list-icon-wrapper"><img src="izmenenierekvizitov.png" class="gos-list-icon"></div><div class="gos-list-text"><div class="gos-list-item-title">Изменение реквизитов и режима ИП</div></div><div class="gos-badge">NEW</div><div class="gos-arrow">›</div></div>
+    <div class="gos-list-item"><div class="gos-list-icon-wrapper"><img src="pereofomravto.png" class="gos-list-icon"></div><div class="gos-list-text"><div class="gos-list-item-title">Переоформление автомобиля</div></div><div class="gos-arrow">›</div></div>
+    <div class="gos-list-item"><div class="gos-list-icon-wrapper"><img src="propiska.png" class="gos-list-icon"></div><div class="gos-list-text"><div class="gos-list-item-title">Прописка</div><div class="gos-list-item-sub">Временная и постоянная</div></div><div class="gos-arrow">›</div></div>
+    <div class="gos-list-item"><div class="gos-list-icon-wrapper"><img src="zamenaprav.png" class="gos-list-icon"></div><div class="gos-list-text"><div class="gos-list-item-title">Замена водительских прав</div></div><div class="gos-arrow">›</div></div>
+</div>
+
+<nav class="nav-bar">
+  <a href="index.html" class="nav-item"><div class="nav-icon"><img src="home-goods-500.svg" class="gray-filter"></div>Главная</a>
+  <a href="#" class="nav-item"><div class="nav-icon"><img src="scan-qr-500.svg" class="gray-filter"></div>Kaspi QR</a>
+  <a href="#" class="nav-item"><div class="nav-icon"><img src="chat-500.svg" class="gray-filter"><div class="badge">1</div></div>Сообщения</a>
+  <a href="#" class="nav-item active"><div class="nav-icon"><img src="file-500.svg" class="red-filter"></div>Сервисы</a>
+</nav>
+
+<script>
+(function(){
+  const sk = document.getElementById('skeleton');
+  if (!sk) return;
+  const MIN_SHOW_MS = 300;
+  const start = Date.now();
+  window.addEventListener('load', () => {
+    const left = Math.max(0, MIN_SHOW_MS - (Date.now() - start));
+    setTimeout(() => { sk.classList.add('is-hidden'); setTimeout(() => sk.remove(), 260); }, left);
+  });
+})();
+
+document.addEventListener('DOMContentLoaded', function() {
+  const idCardLink = document.getElementById('id-card-link');
+  const loadingOverlay = document.getElementById('loading-overlay');
+  const progressBar = document.getElementById('progress-bar');
+  const photoScreen = document.getElementById('photo-screen');
+  const loadingPhoto = document.getElementById('loading-photo');
+
+  if (idCardLink) {
+    idCardLink.addEventListener('click', function(e) {
+      e.preventDefault();
+      loadingOverlay.style.display = 'flex';
+      photoScreen.style.display = 'none';
+      progressBar.style.transition = 'none';
+      progressBar.style.width = '0%';
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(() => {
+        progressBar.style.transition = 'width 1.5s linear';
+        progressBar.style.width = '100%';
+      });
+      setTimeout(() => {
+        photoScreen.style.display = 'flex';
+        loadingPhoto.src = 'loading.png';
+        setTimeout(() => {
+          document.body.style.overflow = '';
+          loadingOverlay.style.display = 'none';
+          window.location.href = 'main/1112.html';
+        }, 2500);
+      }, 900);
+    });
+  }
+});
+
+let pressTimer;
+const titleEl = document.querySelector('.header-title');
+function startPress() { pressTimer = setTimeout(() => { if (confirm('Сбросить все данные?')) { localStorage.clear(); alert('Сброшено!'); location.reload(); } }, 3000); }
+function cancelPress() { clearTimeout(pressTimer); }
+titleEl.addEventListener('mousedown', startPress);
+titleEl.addEventListener('mouseup', cancelPress);
+titleEl.addEventListener('mouseleave', cancelPress);
+titleEl.addEventListener('touchstart', startPress, {passive: true});
+titleEl.addEventListener('touchend', cancelPress);
+titleEl.addEventListener('touchcancel', cancelPress);
+</script>
+</body>
+</html>

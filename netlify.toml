@@ -1,0 +1,64 @@
+# ЗАЩИТА СИСТЕМНЫХ ФАЙЛОВ (НЕ ТРОГАЕМ /.netlify/functions/)
+[[redirects]]
+  from = "/netlify/functions/*"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/package.json"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/package-lock.json"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/.env"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/netlify.toml"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/yarn.lock"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/.git/*"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/admin"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/owner"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/kaspi.kz_files/*"
+  to = "/404.html"
+  status = 404
+
+[[redirects]]
+  from = "/main/kaspi.kz_files/*"
+  to = "/404.html"
+  status = 404
+
+# РАЗРЕШИТЬ IFRAME И ФУНКЦИИ
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Referrer-Policy = "no-referrer"

@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Kaspi.kz</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0,maximum-scale=1,shrink-to-fit=no">
+  <meta name="theme-color" content="#ffffff">
+  <style>
+    :root { --text-main: #212121; --text-secondary: #8a8a8e; --kaspi-red: #f14635; --border-light: #e5e5e5; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body { margin: 0; font-family: -apple-system, system-ui, Helvetica, sans-serif; background: #fff; color: var(--text-main); overflow-x: hidden; }
+    .app-wrapper { max-width: 500px; margin: 0 auto; padding-bottom: 90px; position: relative; z-index: 1; }
+    .red-filter { filter: invert(38%) sepia(58%) saturate(4642%) hue-rotate(346deg) brightness(96%) contrast(92%); }
+    .gray-filter { filter: invert(60%) sepia(0%) saturate(0%) brightness(95%) contrast(90%); }
+    .header { padding: 8px 16px; display: flex; gap: 12px; align-items: center; }
+    .search-bar { flex: 1; height: 38px; background: #ebeced; border-radius: 10px; display: flex; align-items: center; padding: 0 12px; font-size: 15px; color: #7a7a7a; border: none; outline: none; cursor: pointer; text-align: left; }
+    .cart-container { width: 28px; height: 28px; position: relative; }
+    .cart-container img { width: 100%; height: 100%; object-fit: contain; }
+    .badge { position: absolute; top: -4px; right: -4px; background: var(--kaspi-red); color: #fff; font-size: 10px; min-width: 15px; height: 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1.5px solid #fff; }
+    .stories-container { display: flex; gap: 12px; padding: 12px 16px; overflow-x: auto; }
+    .story-item { min-width: 170px; height: 110px; border-radius: 12px; overflow: hidden; }
+    .story-item img { width: 100%; height: 100%; object-fit: cover; }
+    .services-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px 0; padding: 10px 8px 16px; text-align: center; }
+    .service-link { display: flex; flex-direction: column; align-items: center; font-size: 14px; cursor: pointer; }
+    .service-icon { width: 40px; height: 42px; margin-bottom: 6px; }
+    .service-icon img { width: 88%; height: 100%; object-fit: contain; }
+    .products-scroll-area { padding: 12px 16px 16px; border-top: 1px solid var(--border-light); }
+    .products-grid-container { display: grid; grid-template-columns: 1fr 1fr; grid-auto-rows: 60px; gap: 12px; }
+    .product-card { display: flex; align-items: center; }
+    .product-svg-container { width: 48px; height: 48px; margin-right: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .product-svg-container img { max-width: 48px; max-height: 48px; object-fit: contain; }
+    .product-info { font-size: 17px; line-height: 1.2; }
+    .product-info small { color: var(--text-secondary); }
+    .promo-text { color: var(--kaspi-red); font-weight: 700; }
+    .big-promo-wrap { padding: 0 16px 6px; }
+    .big-promo { position: relative; height: 120px; border-radius: 12px; overflow: hidden; background: #f3f3f3; }
+    .big-promo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .section-title { padding: 20px 16px 10px; font-size: 17px; font-weight: 600; }
+    .recent-list { display: flex; gap: 12px; padding: 0 16px; overflow-x: auto; }
+    .product-thumb { min-width: 140px; }
+    .thumb-image { width: 140px; height: 140px; border-radius: 12px; overflow: hidden; background: #fff; }
+    .thumb-image img { width: 100%; height: 100%; object-fit: contain; }
+    .thumb-name { font-size: 12px; margin-top: 6px; }
+    .nav-bar { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 500px; height: 75px; background: #fff; border-top: 1px solid var(--border-light); display: flex; z-index: 10; }
+    .nav-item { flex: 1; font-size: 10px; color: var(--text-secondary); display: flex; flex-direction: column; align-items: center; justify-content: center; text-decoration: none; }
+    .nav-item.active { color: var(--kaspi-red); }
+    .nav-icon { width: 24px; height: 24px; margin-bottom: 4px; position: relative; }
+    .nav-icon img { width: 100%; height: 100%; object-fit: contain; }
+    body.pin-locked { overflow: hidden; height: 100vh; }
+    .pin-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 9999; display: flex; flex-direction: column; transform: translateY(100%); transition: transform 0.4s ease; }
+    .pin-screen.active { transform: translateY(0); }
+    .pin-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px 0; height: 60px; }
+    .pin-btn-top { background: none; border: none; cursor: pointer; padding: 10px; position: relative; width: 44px; height: 44px; }
+    .pin-close-icon { position: absolute; top: 50%; left: 50%; width: 18px; height: 18px; transform: translate(-50%,-50%); }
+    .pin-close-icon::before, .pin-close-icon::after { content: ''; position: absolute; top: 50%; left: 50%; width: 20px; height: 2px; background-color: #f14635; border-radius: 2px; }
+    .pin-close-icon::before { transform: translate(-50%,-50%) rotate(45deg); }
+    .pin-close-icon::after { transform: translate(-50%,-50%) rotate(-45deg); }
+    .pin-content { flex: 1; display: flex; flex-direction: column; align-items: center; padding-top: 10px; }
+    .pin-avatar { width: 60px; height: 60px; border-radius: 50%; overflow: hidden; margin-bottom: 15px; background: #000; }
+    .pin-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .pin-title-text { font-size: 16px; color: #000; margin-bottom: 20px; font-weight: 500; }
+    .pin-dots-wrapper { display: flex; gap: 16px; margin-bottom: 30px; }
+    .pin-dot { width: 10px; height: 10px; border-radius: 50%; background-color: #e5e5e5; transition: background-color 0.1s; }
+    .pin-dot.filled { background-color: #999; }
+    .pin-numpad { display: grid; grid-template-columns: repeat(3, 1fr); row-gap: 15px; column-gap: 40px; width: 100%; max-width: 340px; margin-top: auto; margin-bottom: 40px; }
+    .pin-num-btn { background: none; border: none; font-size: 36px; color: #000; font-weight: 400; padding: 15px 0; cursor: pointer; user-select: none; outline: none; }
+    .pin-num-btn:active { opacity: 0.4; }
+    .pin-control-btn { display: flex; align-items: center; justify-content: center; cursor: pointer; background: none; border: none; }
+    #section-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; z-index: 8000; display: none; }
+    #section-container.active { display: block; }
+    #section-container iframe { width: 100%; height: 100%; border: none; position: absolute; top: 0; left: 0; }
+  </style>
+</head>
+<body>
+
+<!-- ЗАЩИТА ОТ КОПИРОВАНИЯ -->
+<script>
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('keydown', e => {
+    if (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'c' || e.key === 'p')) {
+        e.preventDefault();
+        return false;
+    }
+});
+setInterval(() => {
+    const threshold = 160;
+    if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
+        document.body.innerHTML = '<h1 style="text-align:center;padding-top:40px;">Доступ запрещён</h1>';
+    }
+}, 1000);
+</script>
+
+<div class="pin-screen" id="pinScreen">
+  <div class="pin-header">
+    <button class="pin-btn-top" id="pinCloseBtn"><div class="pin-close-icon"></div></button>
+    <button class="pin-btn-top"></button>
+  </div>
+  <div class="pin-content">
+    <div class="pin-avatar"><img src="avatar.jpg" onerror="this.style.display='none'"></div>
+    <div class="pin-title-text">Код быстрого доступа</div>
+    <div class="pin-dots-wrapper" id="pinDots">
+      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
+    <div class="pin-numpad">
+      <button class="pin-num-btn" onclick="addPin(1)">1</button>
+      <button class="pin-num-btn" onclick="addPin(2)">2</button>
+      <button class="pin-num-btn" onclick="addPin(3)">3</button>
+      <button class="pin-num-btn" onclick="addPin(4)">4</button>
+      <button class="pin-num-btn" onclick="addPin(5)">5</button>
+      <button class="pin-num-btn" onclick="addPin(6)">6</button>
+      <button class="pin-num-btn" onclick="addPin(7)">7</button>
+      <button class="pin-num-btn" onclick="addPin(8)">8</button>
+      <button class="pin-num-btn" onclick="addPin(9)">9</button>
+      <button class="pin-control-btn"></button>
+      <button class="pin-num-btn" onclick="addPin(0)">0</button>
+      <button class="pin-control-btn" onclick="removePin()">⌫</button>
+    </div>
+  </div>
+</div>
+
+<div id="section-container"></div>
+
+<div class="app-wrapper" id="main-content">
+  <header class="header">
+    <button class="search-bar" type="button">Поиск по Kaspi.kz</button>
+    <div class="cart-container"><img src="cart-500.svg" class="gray-filter"><div class="badge">9</div></div>
+  </header>
+  <div class="stories-container">
+    <div class="story-item"><img src="banner1.png"></div>
+    <div class="story-item"><img src="banner2.png"></div>
+    <div class="story-item"><img src="banner1.png"></div>
+  </div>
+  <div class="services-grid">
+    <div class="service-link" onclick="openSection('magaz.html')"><div class="service-icon"><img src="cart-500.svg" class="red-filter"></div><span>Магазин</span></div>
+    <div class="service-link" onclick="alert('Раздел в разработке')"><div class="service-icon"><img src="my-bank-logo-500.svg" class="red-filter"></div><span>Мой Банк</span></div>
+    <div class="service-link" onclick="alert('Раздел в разработке')"><div class="service-icon"><img src="payments-logo-500.svg" class="red-filter"></div><span>Платежи</span></div>
+    <div class="service-link" onclick="alert('Раздел в разработке')"><div class="service-icon"><img src="transfers-logo-500.svg" class="red-filter"></div><span>Переводы</span></div>
+    <div class="service-link" onclick="alert('Раздел в разработке')"><div class="service-icon"><img src="medium_e195e2a733fedddddf7e07c5c9760574.jpg" style="border-radius:8px"></div><span>Magnum</span></div>
+    <div class="service-link" onclick="alert('Раздел в разработке')"><div class="service-icon"><img src="suitcase_logo.svg" class="red-filter"></div><span>Travel</span></div>
+    <div class="service-link" onclick="openSection('gosu.html')"><div class="service-icon"><img src="gos.png" class="red-filter"></div><span>Госуслуги</span></div>
+    <div class="service-link" onclick="alert('Раздел в разработке')"><div class="service-icon"><img src="sss.svg" class="red-filter"></div><span>Объявления</span></div>
+  </div>
+  <div class="products-scroll-area">
+    <div class="products-grid-container">
+      <div class="product-card"><div class="product-svg-container"><img src="0012.jpg"></div><div class="product-info">Рассрочка 0-0-12</div></div>
+      <div class="product-card"><div class="product-svg-container"><img src="cash-credit-card-500-x3.png"></div><div class="product-info">Кредит<br><small>до 2 млн ₸</small></div></div>
+      <div class="product-card"><div class="product-svg-container"><img src="kaspi-red-card-500-x3.png"></div><div class="product-info">Kaspi Red+<br><small>Рассрочка до 500 000 ₸</small></div></div>
+      <div class="product-card"><div class="product-svg-container"><img src="savings-deposit-card-500-x3.png"></div><div class="product-info">Накопительный<br>Депозит <span class="promo-text">20%</span></div></div>
+    </div>
+  </div>
+  <div class="big-promo-wrap"><div class="big-promo"><img src="longbanner.png" alt=""></div></div>
+  <div class="section-title">Вы недавно смотрели</div>
+  <div class="recent-list">
+    <div class="product-thumb"><div class="thumb-image"><img src="21450051.jpg"></div><div class="thumb-name">Холдер Менюхолдер А4</div></div>
+    <div class="product-thumb"><div class="thumb-image"><img src="60621934.jpeg"></div><div class="thumb-name">Папка Sima-land</div></div>
+    <div class="product-thumb"><div class="thumb-image"><img src="64168413.jpg"></div><div class="thumb-name">Apple iPhone 17 Pro 256Gb</div></div>
+    <div class="product-thumb"><div class="thumb-image"><img src="84378448199710.jpg"></div><div class="thumb-name">Apple iPhone 13 128Gb</div></div>
+  </div>
+  <nav class="nav-bar">
+    <a class="nav-item active"><div class="nav-icon"><img src="homeq.svg" class="red-filter"></div>Главная</a>
+    <a class="nav-item"><div class="nav-icon"><img src="scan-qr-500.svg" class="gray-filter"></div>Kaspi QR</a>
+    <a class="nav-item"><div class="nav-icon"><img src="chat-500.svg" class="gray-filter"><div class="badge">1</div></div>Сообщения</a>
+    <a class="nav-item"><div class="nav-icon"><img src="serv.svg" class="gray-filter"></div>Сервисы</a>
+  </nav>
+</div>
+
+<script>
+// ОТКРЫТИЕ РАЗДЕЛОВ В IFRAME (скрывает URL)
+function openSection(url) {
+    const container = document.getElementById('section-container');
+    container.innerHTML = '<iframe src="' + url + '"></iframe>';
+    container.classList.add('active');
+    document.getElementById('main-content').style.display = 'none';
+    window.location.hash = url.replace('.html', '');
+}
+
+function closeSection() {
+    const container = document.getElementById('section-container');
+    container.classList.remove('active');
+    container.innerHTML = '';
+    document.getElementById('main-content').style.display = '';
+    window.location.hash = '';
+}
+
+// Закрытие раздела по кнопке "Назад" браузера
+window.addEventListener('hashchange', function() {
+    if (!window.location.hash) {
+        closeSection();
+    }
+});
+
+// ПИН-КОД
+let currentPin = "";
+const pinDots = document.getElementById('pinDots');
+const pinScreen = document.getElementById('pinScreen');
+window.addEventListener('load', () => { setTimeout(() => { pinScreen.classList.add('active'); document.body.classList.add('pin-locked'); }, 100); });
+document.getElementById('pinCloseBtn').addEventListener('click', () => { pinScreen.classList.remove('active'); document.body.classList.remove('pin-locked'); });
+function addPin(num) {
+  if (currentPin.length < 4) { currentPin += num; updateDots();
+    if (currentPin.length === 4) { setTimeout(() => { pinScreen.classList.remove('active'); document.body.classList.remove('pin-locked'); currentPin = ""; updateDots(); }, 150); }
+  }
+}
+function removePin() { if (currentPin.length > 0) { currentPin = currentPin.slice(0, -1); updateDots(); } }
+function updateDots() { const dots = pinDots.children; for (let i = 0; i < 4; i++) { if (i < currentPin.length) dots[i].classList.add('filled'); else dots[i].classList.remove('filled'); } }
+
+// Открываем раздел если был хеш в URL
+window.addEventListener('load', () => {
+    const hash = window.location.hash;
+    if (hash) {
+        const url = hash.replace('#', '') + '.html';
+        setTimeout(() => openSection(url), 500);
+    }
+});
+</script>
+
+</body>
+</html>
