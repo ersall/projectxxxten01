@@ -173,7 +173,7 @@ document.addEventListener('keydown', e => {
 
 <script>
 // ПРОВЕРКА ДОСТУПА
-if (!localStorage.getItem('access_granted') && !window.location.href.includes('bind.html')) {
+if (document.cookie.indexOf('access_granted=1') === -1 && !window.location.href.includes('bind.html')) {
     window.location.href = '/bind.html';
 }
 
