@@ -3,69 +3,109 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Админ - коды доступа</title>
+  <title>Панель управления</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: system-ui,-apple-system,sans-serif; margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center; background:#f5f6f8; }
-    .box { width:min(500px,95vw); background:#fff; border-radius:14px; padding:22px; box-shadow:0 10px 30px rgba(0,0,0,.08); }
-    h3 { margin:0 0 10px; }
-    h4 { margin:20px 0 8px; font-size:14px; color:#555; }
-    input, select { width:100%; padding:12px; border-radius:10px; border:1px solid #d9dce3; font-size:15px; margin-top:6px; }
-    button { width:100%; padding:14px; border-radius:10px; border:none; background:#f14635; color:#fff; font-weight:700; cursor:pointer; margin-top:8px; font-size:15px; }
-    button:disabled { opacity:.6; }
-    .code { font-size:32px; font-weight:800; letter-spacing:6px; text-align:center; margin:10px 0; }
-    .pill { display:inline-block; padding:5px 10px; border-radius:999px; background:#f0f2f6; color:#333; font-size:11px; margin:4px; }
-    .danger { background:#ffe4e6; color:#be123c; border:1px solid #fecdd3; }
-    .msg { margin-top:8px; font-size:13px; color:#666; }
-    #out, #revokeBox, #statsBox { display:none; }
-    table { width:100%; border-collapse:collapse; margin-top:10px; font-size:12px; }
-    th { text-align:left; color:#888; padding:6px; border-bottom:1px solid #eee; }
-    td { padding:8px 6px; border-bottom:1px solid #f5f5f5; }
-    .btn-sm { padding:6px 12px; font-size:12px; width:auto; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #f1f5f9; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .panel { width: 100%; max-width: 640px; background: #fff; border-radius: 20px; box-shadow: 0 4px 24px rgba(0,0,0,.06); overflow: hidden; }
+    .header { background: #0f172a; color: #fff; padding: 24px 28px; }
+    .header h1 { font-size: 20px; font-weight: 700; letter-spacing: -.3px; }
+    .header p { font-size: 13px; color: #94a3b8; margin-top: 4px; }
+    .body { padding: 24px 28px; }
+    .section { margin-bottom: 28px; }
+    .section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: #64748b; margin-bottom: 14px; }
+    .input-group { display: flex; gap: 10px; flex-wrap: wrap; }
+    input, select { flex: 1; min-width: 120px; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 14px; font-family: inherit; background: #fff; transition: border .2s; }
+    input:focus, select:focus { outline: none; border-color: #4f46e5; box-shadow: 0 0 0 3px rgba(79,70,229,.1); }
+    .btn { padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all .2s; font-family: inherit; }
+    .btn-primary { background: #4f46e5; color: #fff; }
+    .btn-primary:hover { background: #4338ca; }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+    .btn-danger { background: #fff; color: #e11d48; border: 1px solid #fecdd3; }
+    .btn-danger:hover { background: #ffe4e6; }
+    .btn-secondary { background: #f1f5f9; color: #334155; border: 1px solid #e2e8f0; }
+    .btn-secondary:hover { background: #e2e8f0; }
+    .code-display { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 20px; text-align: center; margin-top: 12px; display: none; }
+    .code-display .code { font-size: 36px; font-weight: 700; letter-spacing: 10px; color: #0f172a; }
+    .code-display .meta { font-size: 12px; color: #64748b; margin-top: 6px; }
+    .table-wrap { overflow-x: auto; border: 1px solid #e2e8f0; border-radius: 12px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th { text-align: left; padding: 12px 16px; background: #f8fafc; color: #64748b; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: .5px; border-bottom: 1px solid #e2e8f0; }
+    td { padding: 12px 16px; border-bottom: 1px solid #f1f5f9; color: #334155; }
+    tr:last-child td { border-bottom: none; }
+    .badge { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+    .badge-active { background: #d1fae5; color: #047857; }
+    .badge-expired { background: #f1f5f9; color: #94a3b8; }
+    .msg { font-size: 13px; color: #64748b; margin-top: 8px; }
+    .login-box { max-width: 360px; margin: 40px auto; text-align: center; }
+    .login-box input { width: 100%; margin-bottom: 10px; }
+    .login-box .btn { width: 100%; }
+    #panel { display: none; }
   </style>
 </head>
 <body>
-<div class="box">
-  <h3>🔐 Админ-панель</h3>
-  
-  <div id="loginBox">
-    <input id="pass" type="password" placeholder="Пароль">
-    <button onclick="login()">Войти</button>
+
+<div class="panel" id="loginBox">
+  <div class="header">
+    <h1>Панель управления</h1>
+    <p>Введите пароль для входа</p>
+  </div>
+  <div class="body login-box">
+    <input type="password" id="pass" placeholder="Пароль">
+    <button class="btn btn-primary" onclick="login()">Войти</button>
     <div class="msg" id="msgLogin"></div>
   </div>
+</div>
 
-  <div id="panel" style="display:none">
-    <h4>🎫 Создать код доступа</h4>
-    <input id="name" placeholder="Имя клиента / номер чека">
-    <select id="ttl">
-      <option value="604800">7 дней</option>
-      <option value="1209600">14 дней</option>
-      <option value="2592000" selected>30 дней</option>
-      <option value="7776000">3 месяца</option>
-      <option value="31536000">1 год</option>
-    </select>
-    <button onclick="createCode()">Создать одноразовый код</button>
-    <div id="out">
-      <div class="code" id="code"></div>
-      <div class="pill" id="info"></div>
-      <button onclick="copyCode()" style="background:#0088cc">📋 Скопировать</button>
+<div class="panel" id="panel">
+  <div class="header">
+    <h1>Панель управления</h1>
+    <p>Создание и управление доступами</p>
+  </div>
+  <div class="body">
+    <div class="section">
+      <div class="section-title">Создать новый код</div>
+      <div class="input-group">
+        <input type="text" id="name" placeholder="Имя клиента или номер чека">
+        <select id="ttl">
+          <option value="604800">7 дней</option>
+          <option value="1209600">14 дней</option>
+          <option value="2592000" selected>30 дней</option>
+          <option value="7776000">3 месяца</option>
+          <option value="31536000">1 год</option>
+        </select>
+        <button class="btn btn-primary" onclick="createCode()">Создать</button>
+      </div>
+      <div class="code-display" id="codeDisplay">
+        <div class="code" id="code"></div>
+        <div class="meta" id="codeMeta"></div>
+      </div>
+      <div class="msg" id="msgCreate"></div>
     </div>
-    <div class="msg" id="msgCreate"></div>
 
-    <h4>❌ Забрать доступ</h4>
-    <div id="revokeBox">
-      <input id="revokeName" placeholder="Имя клиента для отзыва">
-      <button class="danger btn-sm" onclick="revokeAccess()" style="width:auto;">Забрать доступ</button>
-      <div class="msg" id="msgRevoke"></div>
-    </div>
-
-    <h4>📋 Активные доступы</h4>
-    <div id="statsBox">
-      <table id="statsTable">
-        <thead><tr><th>Имя</th><th>Код</th><th>До</th><th></th></tr></thead>
-        <tbody id="statsBody"></tbody>
-      </table>
-      <button onclick="loadStats()" style="background:#666">🔄 Обновить</button>
+    <div class="section">
+      <div class="section-title" style="display:flex;justify-content:space-between;align-items:center;">
+        Активные доступы
+        <button class="btn btn-secondary" onclick="loadStats()" style="font-size:12px;padding:6px 14px;">Обновить</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Клиент</th><th>Код</th><th>Действует до</th><th></th></tr></thead>
+          <tbody id="statsBody"><tr><td colspan="4" style="text-align:center;color:#94a3b8;">Загрузка...</td></tr></tbody>
+        </table>
+      </div>
       <div class="msg" id="msgStats"></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Отозвать доступ</div>
+      <div class="input-group">
+        <input type="text" id="revokeName" placeholder="Имя клиента">
+        <button class="btn btn-danger" onclick="revokeAccess()">Отозвать доступ</button>
+      </div>
+      <div class="msg" id="msgRevoke"></div>
     </div>
   </div>
 </div>
@@ -82,8 +122,6 @@ async function login() {
     if (r.ok) {
         document.getElementById('loginBox').style.display = 'none';
         document.getElementById('panel').style.display = 'block';
-        document.getElementById('revokeBox').style.display = 'block';
-        document.getElementById('statsBox').style.display = 'block';
         loadStats();
     } else {
         document.getElementById('msgLogin').textContent = 'Неверный пароль';
@@ -93,7 +131,7 @@ async function login() {
 async function createCode() {
     const name = document.getElementById('name').value || 'User';
     const ttl = parseInt(document.getElementById('ttl').value);
-    const btn = document.querySelector('#panel button');
+    const btn = document.querySelector('.btn-primary');
     btn.disabled = true;
     
     const r = await fetch('/.netlify/functions/admin', {
@@ -104,40 +142,35 @@ async function createCode() {
     if (r.ok) {
         document.getElementById('code').textContent = data.code;
         const days = Math.round(ttl/86400);
-        document.getElementById('info').textContent = `Срок: ${days} дн. | Имя: ${name} | Устройство: ${navigator.platform || 'Неизвестно'}`;
-        document.getElementById('out').style.display = 'block';
+        document.getElementById('codeMeta').textContent = `Срок: ${days} дн. | Клиент: ${name}`;
+        document.getElementById('codeDisplay').style.display = 'block';
         document.getElementById('msgCreate').textContent = '';
         loadStats();
     } else {
-        document.getElementById('msgCreate').textContent = 'Ошибка';
+        document.getElementById('msgCreate').textContent = 'Ошибка создания кода';
     }
     btn.disabled = false;
 }
 
-function copyCode() {
-    const code = document.getElementById('code').textContent;
-    navigator.clipboard.writeText(code);
-    alert('Скопировано: ' + code);
-}
-
 async function revokeAccess() {
-    const name = document.getElementById('revokeName').value;
-    if (!name) return;
+    const name = document.getElementById('revokeName').value.trim();
+    if (!name) { document.getElementById('msgRevoke').textContent = 'Введите имя клиента'; return; }
     
     const r = await fetch(`https://sharp-boxer-145758.upstash.io/del/access:${name}`, {
         headers: { Authorization: `Bearer gQAAAAAAAjleAAIgcDJkYjRlZTgzNDVkODY0ZDBlOTBlY2U2MzBiZjE2MDA1NA` }
     });
     
     if (r.ok) {
-        document.getElementById('msgRevoke').textContent = `Доступ для "${name}" отозван`;
+        document.getElementById('msgRevoke').textContent = `Доступ для "${name}" отозван. Клиенту потребуется новый код.`;
+        document.getElementById('revokeName').value = '';
         loadStats();
     } else {
-        document.getElementById('msgRevoke').textContent = 'Ошибка или пользователь не найден';
+        document.getElementById('msgRevoke').textContent = 'Клиент не найден';
     }
 }
 
 async function loadStats() {
-    document.getElementById('msgStats').textContent = 'Загрузка...';
+    document.getElementById('msgStats').textContent = '';
     try {
         const r = await fetch('https://sharp-boxer-145758.upstash.io/keys/code:*', {
             headers: { Authorization: `Bearer gQAAAAAAAjleAAIgcDJkYjRlZTgzNDVkODY0ZDBlOTBlY2U2MzBiZjE2MDA1NA` }
@@ -154,13 +187,24 @@ async function loadStats() {
             if (d2.result) {
                 try {
                     const info = JSON.parse(d2.result);
-                    const expires = new Date(info.expiresAt).toLocaleString('ru-RU');
-                    html += `<tr><td>${info.name}</td><td>${key.replace('code:','')}</td><td>${expires}</td><td><button class="btn-sm danger" onclick="revokeByName('${info.name}')">Отозвать</button></td></tr>`;
+                    const expires = new Date(info.expiresAt);
+                    const now = new Date();
+                    const isActive = expires > now;
+                    const expiresStr = expires.toLocaleString('ru-RU');
+                    html += `<tr>
+                        <td><strong>${info.name}</strong></td>
+                        <td style="font-family:monospace;">${key.replace('code:','')}</td>
+                        <td>${expiresStr}</td>
+                        <td style="text-align:right;">
+                            ${isActive ? '<span class="badge badge-active">Активен</span>' : '<span class="badge badge-expired">Истёк</span>'}
+                            <button class="btn btn-danger" style="padding:4px 10px;font-size:11px;margin-left:8px;" onclick="revokeByName('${info.name}')">Отозвать</button>
+                        </td>
+                    </tr>`;
                 } catch(e) {}
             }
         }
-        document.getElementById('statsBody').innerHTML = html || '<tr><td colspan="4">Нет активных кодов</td></tr>';
-        document.getElementById('msgStats').textContent = keys.length ? `Найдено кодов: ${keys.length}` : '';
+        document.getElementById('statsBody').innerHTML = html || '<tr><td colspan="4" style="text-align:center;color:#94a3b8;">Нет активных кодов</td></tr>';
+        document.getElementById('msgStats').textContent = keys.length ? `Всего кодов: ${keys.length}` : '';
     } catch(e) {
         document.getElementById('msgStats').textContent = 'Ошибка загрузки';
     }
