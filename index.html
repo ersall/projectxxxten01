@@ -172,8 +172,9 @@ document.addEventListener('keydown', e => {
 </div>
 
 <script>
-// ПРОВЕРКА ДОСТУПА
-if (document.cookie.indexOf('access_granted=1') === -1 && !window.location.href.includes('bind.html')) {
+// Проверка доступа через куки И localStorage (для PWA)
+const hasAccess = document.cookie.indexOf('access_granted=1') !== -1 || localStorage.getItem('access_granted') === 'true';
+if (!hasAccess && !window.location.href.includes('bind.html')) {
     window.location.href = '/bind.html';
 }
 
