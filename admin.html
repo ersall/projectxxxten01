@@ -147,7 +147,9 @@ async function login() {
 
 function switchTab(tab) {
     currentTab = tab;
-    document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === event.target));
+    document.querySelectorAll('.tab').forEach((t,i) => {
+        t.classList.toggle('active', (i===0 && tab==='active') || (i===1 && tab==='history'));
+    });
     filterTable();
 }
 
@@ -183,16 +185,18 @@ async function revokeAccess() {
     document.getElementById('msgRevoke').textContent = 'Отзыв доступа...';
     
     // Удаляем ключ доступа
-    const r1 = await fetch(`https://sharp-boxer-145758.upstash.io/del/access:${name}`, {
+    await fetch(`https://sharp-boxer-145758.upstash.io/del/access:${name}`, {
         headers: { Authorization: `Bearer gQAAAAAAAjleAAIgcDJkYjRlZTgzNDVkODY0ZDBlOTBlY2U2MzBiZjE2MDA1NA` }
     });
     
-    // Также удаляем все коды с этим именем из code:*
-    const keys = allCodes.filter(c => c.name === name);
-    for (const k of keys) {
-        await fetch(`https://sharp-boxer-145758.upstash.io/del/code:${k.code}`, {
-            headers: { Authorization: `Bearer gQAAAAAAAjleAAIgcDJkYjRlZTgzNDVkODY0ZDBlOTBlY2U2MzBiZjE2MDA1NA` }
-        });
+    // Удаляем все коды с этим именем
+    const keysToDelete = allCodes.filter(c => c.name === name);
+    for (const k of keysToDelete) {
+        if (k.code !== '-') {
+            await fetch(`https://sharp-boxer-145758.upstash.io/del/code:${k.code}`, {
+                headers: { Authorization: `Bearer gQAAAAAAAjleAAIgcDJkYjRlZTgzNDVkODY0ZDBlOTBlY2U2MzBiZjE2MDA1NA` }
+            });
+        }
     }
     
     document.getElementById('msgRevoke').textContent = `Доступ для "${name}" полностью отозван.`;
@@ -205,7 +209,13 @@ async function loadStats() {
     try {
         allCodes = [];
         
-        // 1. Загружаем ключи доступа access:*
+        // Загружаем ключи доступа access:*
+        const r1 = await fetch('https://sharp-boxer-145758.upstash.io/keys/access:*', {
+            headers: { Authorization: `Bearer gQAAAAAAAjleAAIgcDJkYjRlZTgzNDVkODY0ZDBlOTBlY2U2MzBiZjE2MDA1NA` }
+        });
+        const d1 = await r1.json();
+        allAccessKeys = d1.result || [];
+        
         for (const accessKey of allAccessKeys) {
             const r = await fetch(`https://sharp-boxer-145758.upstash.io/get/${accessKey}`, {
                 headers: { Authorization: `Bearer gQAAAAAAAjleAAIgcDJkYjRlZTgzNDVkODY0ZDBlOTBlY2U2MzBiZjE2MDA1NA` }
@@ -226,21 +236,21 @@ async function loadStats() {
             }
         }
         
-        // 2. Загружаем неиспользованные коды code:*
-        const r = await fetch('https://sharp-boxer-145758.upstash.io/keys/code:*', {
+        // Загружаем неиспользованные коды code:*
+        const r2 = await fetch('https://sharp-boxer-145758.upstash.io/keys/code:*', {
             headers: { Authorization: `Bearer gQAAAAAAAjleAAIgcDJkYjRlZTgzNDVkODY0ZDBlOTBlY2U2MzBiZjE2MDA1NA` }
         });
-        const data = await r.json();
-        const codeKeys = data.result || [];
+        const d2 = await r2.json();
+        const codeKeys = d2.result || [];
         
         for (const key of codeKeys) {
-            const r2 = await fetch(`https://sharp-boxer-145758.upstash.io/get/${key}`, {
+            const r = await fetch(`https://sharp-boxer-145758.upstash.io/get/${key}`, {
                 headers: { Authorization: `Bearer gQAAAAAAAjleAAIgcDJkYjRlZTgzNDVkODY0ZDBlOTBlY2U2MzBiZjE2MDA1NA` }
             });
-            const d2 = await r2.json();
-            if (d2.result) {
+            const d = await r.json();
+            if (d.result) {
                 try {
-                    const info = JSON.parse(d2.result);
+                    const info = JSON.parse(d.result);
                     const expires = new Date(info.expiresAt);
                     const now = new Date();
                     allCodes.push({
@@ -255,7 +265,7 @@ async function loadStats() {
             }
         }
         
-        // Убираем дубликаты по имени
+        // Убираем дубликаты
         const seen = new Set();
         allCodes = allCodes.filter(c => {
             const key = c.name + c.code;
@@ -263,18 +273,6 @@ async function loadStats() {
             seen.add(key);
             return true;
         });
-        
-        allCodes.sort((a,b) => b.createdAt - a.createdAt);
-        
-        const activeCodes = allCodes.filter(c => c.isActive);
-        document.getElementById('activeCount').textContent = activeCodes.length;
-        
-        filterTable();
-        document.getElementById('msgStats').textContent = `Всего записей: ${allCodes.length} | Активных: ${activeCodes.length}`;
-    } catch(e) {
-        document.getElementById('msgStats').textContent = 'Ошибка загрузки';
-    }
-}
         
         allCodes.sort((a,b) => b.createdAt - a.createdAt);
         
