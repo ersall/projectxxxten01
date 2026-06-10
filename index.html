@@ -1,10 +1,5 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <script>
-if (!localStorage.getItem('access_granted') && !window.location.href.includes('bind.html')) {
-    window.location.href = '/bind.html';
-}
-</script>
 <head>
   <meta charset="UTF-8">
   <title>Kaspi.kz</title>
@@ -78,7 +73,7 @@ if (!localStorage.getItem('access_granted') && !window.location.href.includes('b
 </head>
 <body>
 
-<!-- ЗАЩИТА ОТ КОПИРОВАНИЯ -->
+<!-- ЗАЩИТА ОТ КОПИРОВАНИЯ (без ложного срабатывания на телефоне) -->
 <script>
 document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('keydown', e => {
@@ -87,12 +82,6 @@ document.addEventListener('keydown', e => {
         return false;
     }
 });
-setInterval(() => {
-    const threshold = 160;
-    if (window.outerWidth - window.innerWidth > threshold || window.outerHeight - window.innerHeight > threshold) {
-        document.body.innerHTML = '<h1 style="text-align:center;padding-top:40px;">Доступ запрещён</h1>';
-    }
-}, 1000);
 </script>
 
 <div class="pin-screen" id="pinScreen">
@@ -170,7 +159,12 @@ setInterval(() => {
 </div>
 
 <script>
-// ОТКРЫТИЕ РАЗДЕЛОВ В IFRAME (скрывает URL)
+// ПРОВЕРКА ДОСТУПА
+if (!localStorage.getItem('access_granted') && !window.location.href.includes('bind.html')) {
+    window.location.href = '/bind.html';
+}
+
+// ОТКРЫТИЕ РАЗДЕЛОВ В IFRAME
 function openSection(url) {
     const container = document.getElementById('section-container');
     container.innerHTML = '<iframe src="' + url + '"></iframe>';
@@ -187,11 +181,8 @@ function closeSection() {
     window.location.hash = '';
 }
 
-// Закрытие раздела по кнопке "Назад" браузера
 window.addEventListener('hashchange', function() {
-    if (!window.location.hash) {
-        closeSection();
-    }
+    if (!window.location.hash) closeSection();
 });
 
 // ПИН-КОД
