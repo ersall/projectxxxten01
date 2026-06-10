@@ -203,45 +203,78 @@ async function revokeAccess() {
 async function loadStats() {
     document.getElementById('msgStats').textContent = '';
     try {
-        // Загружаем коды из Redis
+        allCodes = [];
+        
+        // 1. Загружаем ключи доступа access:*
+        for (const accessKey of allAccessKeys) {
+            const r = await fetch(`https://sharp-boxer-145758.upstash.io/get/${accessKey}`, {
+                headers: { Authorization: `Bearer gQAAAAAAAjleAAIgcDJkYjRlZTgzNDVkODY0ZDBlOTBlY2U2MzBiZjE2MDA1NA` }
+            });
+            const d = await r.json();
+            if (d.result) {
+                try {
+                    const info = JSON.parse(d.result);
+                    allCodes.push({
+                        name: info.name,
+                        code: '-',
+                        createdAt: new Date(info.createdAt || Date.now()),
+                        expiresAt: new Date(info.expiresAt || Date.now()),
+                        isActive: true,
+                        isUsed: false
+                    });
+                } catch(e) {}
+            }
+        }
+        
+        // 2. Загружаем неиспользованные коды code:*
         const r = await fetch('https://sharp-boxer-145758.upstash.io/keys/code:*', {
             headers: { Authorization: `Bearer gQAAAAAAAjleAAIgcDJkYjRlZTgzNDVkODY0ZDBlOTBlY2U2MzBiZjE2MDA1NA` }
         });
         const data = await r.json();
         const codeKeys = data.result || [];
         
-        // Загружаем ключи доступа
-        const r2 = await fetch('https://sharp-boxer-145758.upstash.io/keys/access:*', {
-            headers: { Authorization: `Bearer gQAAAAAAAjleAAIgcDJkYjRlZTgzNDVkODY0ZDBlOTBlY2U2MzBiZjE2MDA1NA` }
-        });
-        const data2 = await r2.json();
-        allAccessKeys = data2.result || [];
-        
-        allCodes = [];
-        
         for (const key of codeKeys) {
-            const r3 = await fetch(`https://sharp-boxer-145758.upstash.io/get/${key}`, {
+            const r2 = await fetch(`https://sharp-boxer-145758.upstash.io/get/${key}`, {
                 headers: { Authorization: `Bearer gQAAAAAAAjleAAIgcDJkYjRlZTgzNDVkODY0ZDBlOTBlY2U2MzBiZjE2MDA1NA` }
             });
-            const d3 = await r3.json();
-            if (d3.result) {
+            const d2 = await r2.json();
+            if (d2.result) {
                 try {
-                    const info = JSON.parse(d3.result);
+                    const info = JSON.parse(d2.result);
                     const expires = new Date(info.expiresAt);
                     const now = new Date();
-                    const isActive = expires > now;
-                    const isRevoked = !allAccessKeys.includes(`access:${info.name}`);
                     allCodes.push({
                         name: info.name,
                         code: key.replace('code:',''),
                         createdAt: new Date(info.createdAt),
                         expiresAt: expires,
-                        isActive: isActive && !isRevoked,
-                        isUsed: !isActive || isRevoked
+                        isActive: expires > now,
+                        isUsed: false
                     });
                 } catch(e) {}
             }
         }
+        
+        // Убираем дубликаты по имени
+        const seen = new Set();
+        allCodes = allCodes.filter(c => {
+            const key = c.name + c.code;
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
+        });
+        
+        allCodes.sort((a,b) => b.createdAt - a.createdAt);
+        
+        const activeCodes = allCodes.filter(c => c.isActive);
+        document.getElementById('activeCount').textContent = activeCodes.length;
+        
+        filterTable();
+        document.getElementById('msgStats').textContent = `Всего записей: ${allCodes.length} | Активных: ${activeCodes.length}`;
+    } catch(e) {
+        document.getElementById('msgStats').textContent = 'Ошибка загрузки';
+    }
+}
         
         allCodes.sort((a,b) => b.createdAt - a.createdAt);
         
