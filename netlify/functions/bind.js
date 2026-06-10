@@ -36,7 +36,19 @@ exports.handler = async (event) => {
         return { statusCode: 401, body: "Code expired" };
     }
 
+    // Удаляем использованный код
     await fetch(`${url}/del/code:${code}`, {
+        headers: { Authorization: `Bearer ${token}` }
+    });
+
+    // Сохраняем ключ доступа (для отзыва)
+    const accessKey = `access:${codeData.name}`;
+    const accessData = JSON.stringify({
+        name: codeData.name,
+        createdAt: Date.now(),
+        expiresAt: Date.now() + 365 * 24 * 60 * 60 * 1000
+    });
+    await fetch(`${url}/set/${accessKey}/${encodeURIComponent(accessData)}`, {
         headers: { Authorization: `Bearer ${token}` }
     });
 
