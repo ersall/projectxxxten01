@@ -5,6 +5,13 @@
   <title>Kaspi.kz</title>
   <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0,maximum-scale=1,shrink-to-fit=no">
   <meta name="theme-color" content="#ffffff">
+ <link rel="manifest" href="manifest.json">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="application-name" content="Kaspi.kz">
+  <meta name="apple-mobile-web-app-title" content="Kaspi.kz">
+  <link rel="apple-touch-icon" sizes="180x180" href="icon-192.png">
+  
   <style>
     :root { --text-main: #212121; --text-secondary: #8a8a8e; --kaspi-red: #f14635; --border-light: #e5e5e5; }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -107,7 +114,13 @@ document.addEventListener('keydown', e => {
       <button class="pin-num-btn" onclick="addPin(9)">9</button>
       <button class="pin-control-btn"></button>
       <button class="pin-num-btn" onclick="addPin(0)">0</button>
-      <button class="pin-control-btn" onclick="removePin()">⌫</button>
+      <button class="pin-control-btn" onclick="removePin()">
+  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8e8e93" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 4H8L1 12l7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
+    <line x1="18" y1="9" x2="12" y2="15"></line>
+    <line x1="12" y1="9" x2="18" y2="15"></line>
+  </svg>
+</button>
     </div>
   </div>
 </div>
